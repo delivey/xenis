@@ -10,6 +10,10 @@ require('dotenv').config();
 
 app.use(express.static(__dirname + '/static'));
 
+app.use(express.urlencoded({
+    extended: true
+  }))
+
 // Mongose and MongoDB setup
 
 var URI = process.env.MONGO_URI;
@@ -30,11 +34,29 @@ app.get('/', (req, res) => {
 })
 
 app.get('/sh', (req, res) => {
-    var shortened_path = __dirname + '/templates/' + 'index.html'; // Path for shortened.html
+    var shortened_path = __dirname + '/templates/' + 'shortened.html'; // Path for shortened.html
     res.sendFile(shortened_path); // Sends the path
 })
 
 // POST routes
+
+app.post('/', (req, res) => {
+    const original_url = req.body.url; // Works
+
+    function generateId() {
+    var result = '';
+    var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var charactersLength = characters.length;
+    for ( var i = 0; i < 6; i++ ) { // For loop, 6 stands for length of ids
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result; // Returns the id
+    }
+
+    console.log(generateId())
+
+    res.redirect("/sh");
+})
 
 // Running the server
 app.listen(port, () => {
