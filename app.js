@@ -6,6 +6,10 @@ var mongoose = require("mongoose");
 
 require('dotenv').config();
 
+// Middleware
+
+app.use(express.static(__dirname + '/static'));
+
 // Mongose and MongoDB setup
 
 var URI = process.env.MONGO_URI;
