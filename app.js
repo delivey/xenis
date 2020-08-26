@@ -44,9 +44,22 @@ app.get('/sh', (req, res) => {
 
     var new_url = app.get('url');
     
-
     res.render(shortened_path, {new_url:new_url}); // Sends the path
 })
+
+app.get('/:url_id', function(req, res){
+    var url_id = req.params.url_id;
+
+    var query = url.findOne({ 'new_url': url_id });
+
+    query.select('original_url');
+
+    query.exec(function (err, returned_url) {
+        if (err) return console.log(err);
+        result = returned_url.original_url;
+        res.redirect(result)
+      });
+ });
 
 // POST routes
 
