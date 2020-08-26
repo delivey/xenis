@@ -14,6 +14,10 @@ app.use(express.urlencoded({
     extended: true
   }))
 
+// Template Engine
+
+app.engine('html', require('ejs').renderFile);
+
 // Mongose and MongoDB setup
 
 var URI = process.env.MONGO_URI;
@@ -26,6 +30,8 @@ var urlSchema = new Schema({
     new_url : { type: String, required: true }
 });
 
+var url = mongoose.model('url', urlSchema, 'url');
+
 // GET routes
 
 app.get('/', (req, res) => {
@@ -35,13 +41,17 @@ app.get('/', (req, res) => {
 
 app.get('/sh', (req, res) => {
     var shortened_path = __dirname + '/templates/' + 'shortened.html'; // Path for shortened.html
-    res.sendFile(shortened_path); // Sends the path
+
+    var new_url = app.get('url');
+    
+
+    res.render(shortened_path, {new_url:new_url}); // Sends the path
 })
 
 // POST routes
 
 app.post('/', (req, res) => {
-    const original_url = req.body.url; // Works
+    const original_url_input = req.body.url; // Works
 
     function generateId() {
     var result = '';
@@ -53,7 +63,20 @@ app.post('/', (req, res) => {
     return result; // Returns the id
     }
 
-    console.log(generateId())
+    new_id = generateId()
+    //TODO: check if id is duplicate
+
+    var insertData = new url({
+        original_url: original_url_input,
+        new_url: new_id
+    });
+
+    insertData.save(function (err, url) {
+        if (err) return console.error(err);
+        console.log("Insertion to database successful.");
+      });
+
+    app.set('url', new_id);
 
     res.redirect("/sh");
 })
